@@ -18,7 +18,6 @@ package hu.akarnokd.rxjava3.retrofit;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
-
 import io.reactivex.rxjava3.annotations.Nullable;
 import io.reactivex.rxjava3.core.*;
 import retrofit2.*;
@@ -49,93 +48,48 @@ import retrofit2.HttpException;
  * </ul>
  */
 public final class RxJava3CallAdapterFactory extends CallAdapter.Factory {
-  /**
-   * Returns an instance which creates synchronous observables that do not operate on any scheduler
-   * by default.
-   * @return the new adapter instance
-   */
-  public static RxJava3CallAdapterFactory create() {
-    return new RxJava3CallAdapterFactory(null, false);
-  }
 
-  /**
-   * Returns an instance which creates asynchronous observables. Applying
-   * {@link Observable#subscribeOn} has no effect on stream types created by this factory.
-   * @return the new adapter instance
-   */
-  public static RxJava3CallAdapterFactory createAsync() {
-    return new RxJava3CallAdapterFactory(null, true);
-  }
-
-  /**
-   * Returns an instance which creates synchronous observables that
-   * {@linkplain Observable#subscribeOn(Scheduler) subscribe on} {@code scheduler} by default.
-   * @param scheduler the scheduler to run the network operations on
-   * @return the new adapter instance
-   */
-  public static RxJava3CallAdapterFactory createWithScheduler(Scheduler scheduler) {
-    if (scheduler == null) throw new NullPointerException("scheduler == null");
-    return new RxJava3CallAdapterFactory(scheduler, false);
-  }
-
-  private final @Nullable Scheduler scheduler;
-  private final boolean isAsync;
-
-  private RxJava3CallAdapterFactory(@Nullable Scheduler scheduler, boolean isAsync) {
-    this.scheduler = scheduler;
-    this.isAsync = isAsync;
-  }
-
-  @Override public @Nullable CallAdapter<?, ?> get(
-      Type returnType, Annotation[] annotations, Retrofit retrofit) {
-    Class<?> rawType = getRawType(returnType);
-
-    if (rawType == Completable.class) {
-      // Completable is not parameterized (which is what the rest of this method deals with) so it
-      // can only be created with a single configuration.
-      return new RxJava3CallAdapter<>(Void.class, scheduler, isAsync, false, true, false, false,
-          false, true);
+    /**
+     * Returns an instance which creates synchronous observables that do not operate on any scheduler
+     * by default.
+     * @return the new adapter instance
+     */
+    public static RxJava3CallAdapterFactory create() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    boolean isFlowable = rawType == Flowable.class;
-    boolean isSingle = rawType == Single.class;
-    boolean isMaybe = rawType == Maybe.class;
-    if (rawType != Observable.class && !isFlowable && !isSingle && !isMaybe) {
-      return null;
+    /**
+     * Returns an instance which creates asynchronous observables. Applying
+     * {@link Observable#subscribeOn} has no effect on stream types created by this factory.
+     * @return the new adapter instance
+     */
+    public static RxJava3CallAdapterFactory createAsync() {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    boolean isResult = false;
-    boolean isBody = false;
-    Type responseType;
-    if (!(returnType instanceof ParameterizedType)) {
-      String name = isFlowable ? "Flowable"
-          : isSingle ? "Single"
-          : isMaybe ? "Maybe" : "Observable";
-      throw new IllegalStateException(name + " return type must be parameterized"
-          + " as " + name + "<Foo> or " + name + "<? extends Foo>");
+    /**
+     * Returns an instance which creates synchronous observables that
+     * {@linkplain Observable#subscribeOn(Scheduler) subscribe on} {@code scheduler} by default.
+     * @param scheduler the scheduler to run the network operations on
+     * @return the new adapter instance
+     */
+    public static RxJava3CallAdapterFactory createWithScheduler(Scheduler scheduler) {
+        throw new UnsupportedOperationException("STUB: not implemented");
     }
 
-    Type observableType = getParameterUpperBound(0, (ParameterizedType) returnType);
-    Class<?> rawObservableType = getRawType(observableType);
-    if (rawObservableType == Response.class) {
-      if (!(observableType instanceof ParameterizedType)) {
-        throw new IllegalStateException("Response must be parameterized"
-            + " as Response<Foo> or Response<? extends Foo>");
-      }
-      responseType = getParameterUpperBound(0, (ParameterizedType) observableType);
-    } else if (rawObservableType == Result.class) {
-      if (!(observableType instanceof ParameterizedType)) {
-        throw new IllegalStateException("Result must be parameterized"
-            + " as Result<Foo> or Result<? extends Foo>");
-      }
-      responseType = getParameterUpperBound(0, (ParameterizedType) observableType);
-      isResult = true;
-    } else {
-      responseType = observableType;
-      isBody = true;
+    @Nullable
+    private final Scheduler scheduler;
+
+    private final boolean isAsync;
+
+    private RxJava3CallAdapterFactory(@Nullable Scheduler scheduler, boolean isAsync) {
+        this.scheduler = scheduler;
+        this.isAsync = isAsync;
     }
 
-    return new RxJava3CallAdapter<>(responseType, scheduler, isAsync, isResult, isBody, isFlowable,
-        isSingle, isMaybe, false);
-  }
+    @Override
+    @Nullable
+    public CallAdapter<?, ?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 }

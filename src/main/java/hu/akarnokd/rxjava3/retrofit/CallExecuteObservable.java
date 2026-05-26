@@ -22,61 +22,36 @@ import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import retrofit2.*;
 
 final class CallExecuteObservable<T> extends Observable<Response<T>> {
-  private final Call<T> originalCall;
 
-  CallExecuteObservable(Call<T> originalCall) {
-    this.originalCall = originalCall;
-  }
+    private final Call<T> originalCall;
 
-  @Override protected void subscribeActual(Observer<? super Response<T>> observer) {
-    // Since Call is a one-shot type, clone it for each new observer.
-    Call<T> call = originalCall.clone();
-    CallDisposable disposable = new CallDisposable(call);
-    observer.onSubscribe(disposable);
-    if (disposable.isDisposed()) {
-      return;
+    CallExecuteObservable(Call<T> originalCall) {
+        this.originalCall = originalCall;
     }
 
-    boolean terminated = false;
-    try {
-      Response<T> response = call.execute();
-      if (!disposable.isDisposed()) {
-        observer.onNext(response);
-      }
-      if (!disposable.isDisposed()) {
-        terminated = true;
-        observer.onComplete();
-      }
-    } catch (Throwable t) {
-      Exceptions.throwIfFatal(t);
-      if (terminated) {
-        RxJavaPlugins.onError(t);
-      } else if (!disposable.isDisposed()) {
-        try {
-          observer.onError(t);
-        } catch (Throwable inner) {
-          Exceptions.throwIfFatal(inner);
-          RxJavaPlugins.onError(new CompositeException(t, inner));
+    @Override
+    protected void subscribeActual(Observer<? super Response<T>> observer) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
+
+    private static final class CallDisposable implements Disposable {
+
+        private final Call<?> call;
+
+        private volatile boolean disposed;
+
+        CallDisposable(Call<?> call) {
+            this.call = call;
         }
-      }
-    }
-  }
 
-  private static final class CallDisposable implements Disposable {
-    private final Call<?> call;
-    private volatile boolean disposed;
+        @Override
+        public void dispose() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
 
-    CallDisposable(Call<?> call) {
-      this.call = call;
+        @Override
+        public boolean isDisposed() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-
-    @Override public void dispose() {
-      disposed = true;
-      call.cancel();
-    }
-
-    @Override public boolean isDisposed() {
-      return disposed;
-    }
-  }
 }

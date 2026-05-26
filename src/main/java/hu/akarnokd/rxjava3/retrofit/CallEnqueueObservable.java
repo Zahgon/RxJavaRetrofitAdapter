@@ -22,76 +22,51 @@ import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import retrofit2.*;
 
 final class CallEnqueueObservable<T> extends Observable<Response<T>> {
-  private final Call<T> originalCall;
 
-  CallEnqueueObservable(Call<T> originalCall) {
-    this.originalCall = originalCall;
-  }
+    private final Call<T> originalCall;
 
-  @Override protected void subscribeActual(Observer<? super Response<T>> observer) {
-    // Since Call is a one-shot type, clone it for each new observer.
-    Call<T> call = originalCall.clone();
-    CallCallback<T> callback = new CallCallback<>(call, observer);
-    observer.onSubscribe(callback);
-    if (!callback.isDisposed()) {
-      call.enqueue(callback);
-    }
-  }
-
-  private static final class CallCallback<T> implements Disposable, Callback<T> {
-    private final Call<?> call;
-    private final Observer<? super Response<T>> observer;
-    private volatile boolean disposed;
-    boolean terminated = false;
-
-    CallCallback(Call<?> call, Observer<? super Response<T>> observer) {
-      this.call = call;
-      this.observer = observer;
+    CallEnqueueObservable(Call<T> originalCall) {
+        this.originalCall = originalCall;
     }
 
-    @Override public void onResponse(Call<T> call, Response<T> response) {
-      if (disposed) return;
+    @Override
+    protected void subscribeActual(Observer<? super Response<T>> observer) {
+        throw new UnsupportedOperationException("STUB: not implemented");
+    }
 
-      try {
-        observer.onNext(response);
+    private static final class CallCallback<T> implements Disposable, Callback<T> {
 
-        if (!disposed) {
-          terminated = true;
-          observer.onComplete();
+        private final Call<?> call;
+
+        private final Observer<? super Response<T>> observer;
+
+        private volatile boolean disposed;
+
+        boolean terminated = false;
+
+        CallCallback(Call<?> call, Observer<? super Response<T>> observer) {
+            this.call = call;
+            this.observer = observer;
         }
-      } catch (Throwable t) {
-        Exceptions.throwIfFatal(t);
-        if (terminated) {
-          RxJavaPlugins.onError(t);
-        } else if (!disposed) {
-          try {
-            observer.onError(t);
-          } catch (Throwable inner) {
-            Exceptions.throwIfFatal(inner);
-            RxJavaPlugins.onError(new CompositeException(t, inner));
-          }
+
+        @Override
+        public void onResponse(Call<T> call, Response<T> response) {
+            throw new UnsupportedOperationException("STUB: not implemented");
         }
-      }
-    }
 
-    @Override public void onFailure(Call<T> call, Throwable t) {
-      if (call.isCanceled()) return;
+        @Override
+        public void onFailure(Call<T> call, Throwable t) {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
 
-      try {
-        observer.onError(t);
-      } catch (Throwable inner) {
-        Exceptions.throwIfFatal(inner);
-        RxJavaPlugins.onError(new CompositeException(t, inner));
-      }
-    }
+        @Override
+        public void dispose() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
 
-    @Override public void dispose() {
-      disposed = true;
-      call.cancel();
+        @Override
+        public boolean isDisposed() {
+            throw new UnsupportedOperationException("STUB: not implemented");
+        }
     }
-
-    @Override public boolean isDisposed() {
-      return disposed;
-    }
-  }
 }

@@ -25,3 +25,7 @@ local.properties
 .idea
 *.iml
 test-output
+.aider*
+logs/
+.commit0_scripts/
+.github/workflows/
